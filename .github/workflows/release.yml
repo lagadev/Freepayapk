@@ -47,7 +47,14 @@ jobs:
       - name: Show error tail on failure
         if: failure()
         run: |
-          TAIL=$(tail -n 80 build.log | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "----- grep for error: / e: lines -----"
+          grep -n -i -B2 -A6 "error:" build.log > grep_errors.txt || true
+          grep -n -E "^e: " build.log >> grep_errors.txt || true
+          if [ -s grep_errors.txt ]; then
+            TAIL=$(tail -c 4000 grep_errors.txt | sed ':a;N;$!ba;s/\n/%0A/g')
+          else
+            TAIL=$(tail -n 100 build.log | sed ':a;N;$!ba;s/\n/%0A/g')
+          fi
           echo "::error::$TAIL"
 
       - name: Rename artifact
