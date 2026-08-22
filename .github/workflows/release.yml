@@ -44,18 +44,23 @@ jobs:
           set -o pipefail
           ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log
 
+      - name: Dump dependency tree on failure
+        if: failure()
+        run: ./gradlew :app:dependencies --configuration debugRuntimeClasspath > deps.txt 2>&1 || true
+
       - name: Show error tail on failure
         if: failure()
         run: |
-          echo "----- grep for error: / e: lines -----"
-          grep -n -i -B2 -A6 "error:" build.log > grep_errors.txt || true
+          echo "----- wide error context -----"
+          grep -n -i -B5 -A2 "error:\|could not resolve\|could not find\|FAILURE:" build.log > grep_errors.txt || true
           grep -n -E "^e: " build.log >> grep_errors.txt || true
-          if [ -s grep_errors.txt ]; then
-            TAIL=$(tail -c 4000 grep_errors.txt | sed ':a;N;$!ba;s/\n/%0A/g')
-          else
-            TAIL=$(tail -n 100 build.log | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "----- material/cardview/coordinatorlayout in resolved deps -----"
+          grep -i "material\|cardview\|coordinatorlayout\|textinput\|appcompat\|recyclerview\|swiperefresh" deps.txt > grep_deps.txt 2>/dev/null || true
+          COMBINED=$(cat grep_errors.txt grep_deps.txt 2>/dev/null | tail -c 5500 | sed ':a;N;$!ba;s/\n/%0A/g')
+          if [ -z "$COMBINED" ]; then
+            COMBINED=$(tail -n 100 build.log | sed ':a;N;$!ba;s/\n/%0A/g')
           fi
-          echo "::error::$TAIL"
+          echo "::error::$COMBINED"
 
       - name: Rename artifact
         run: cp app/build/outputs/apk/debug/app-debug.apk freepay-sync.apk
