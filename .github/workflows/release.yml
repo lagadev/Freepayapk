@@ -40,7 +40,15 @@ jobs:
         run: gradle wrapper --gradle-version 8.7
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log
+
+      - name: Show error tail on failure
+        if: failure()
+        run: |
+          TAIL=$(tail -n 80 build.log | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error::$TAIL"
 
       - name: Rename artifact
         run: cp app/build/outputs/apk/debug/app-debug.apk freepay-sync.apk
