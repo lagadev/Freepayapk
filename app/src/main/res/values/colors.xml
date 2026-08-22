@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="violet">#6A5CF5</color>
+    <color name="violet_deep">#4B3EE0</color>
+    <color name="blue">#4F7CFF</color>
+    <color name="ink">#14152B</color>
+    <color name="bg">#FBFBFE</color>
+    <color name="bg_soft">#F4F4FC</color>
+    <color name="card">#FFFFFF</color>
+    <color name="line">#E7E7F3</color>
+    <color name="text_main">#14152B</color>
+    <color name="text_muted">#5A5C7A</color>
+    <color name="good">#16B892</color>
+    <color name="good_bg">#E3FAF3</color>
+    <color name="bad">#E0264A</color>
+    <color name="bad_bg">#FDEAEE</color>
+    <color name="pending_bg">#FEF3C7</color>
+    <color name="pending_text">#92620A</color>
+    <color name="telegram">#229ED9</color>
+    <color name="white">#FFFFFF</color>
+</resources>
