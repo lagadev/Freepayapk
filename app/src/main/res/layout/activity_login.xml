@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:hint="Brand API Key"
-                    app:passwordToggleEnabled="true"
+                    app:endIconMode="password_toggle"
                     app:boxCornerRadiusTopStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
