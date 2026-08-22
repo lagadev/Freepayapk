@@ -46,20 +46,25 @@ jobs:
 
       - name: Dump dependency tree on failure
         if: failure()
-        run: ./gradlew :app:dependencies --configuration debugRuntimeClasspath > deps.txt 2>&1 || true
+        run: |
+          ./gradlew :app:dependencies --configuration debugRuntimeClasspath > deps.txt 2>&1 || true
+          echo "----- gradle cache search for material/cardview AARs -----"
+          find ~/.gradle/caches -iname "*material*" -o -iname "*cardview*" 2>/dev/null | head -20 > cache_search.txt || true
+          echo "----- deps.txt head -----"
+          head -60 deps.txt > deps_head.txt || true
 
       - name: Show error tail on failure
         if: failure()
         run: |
-          echo "----- wide error context -----"
-          grep -n -i -B5 -A2 "error:\|could not resolve\|could not find\|FAILURE:" build.log > grep_errors.txt || true
-          grep -n -E "^e: " build.log >> grep_errors.txt || true
-          echo "----- material/cardview/coordinatorlayout in resolved deps -----"
-          grep -i "material\|cardview\|coordinatorlayout\|textinput\|appcompat\|recyclerview\|swiperefresh" deps.txt > grep_deps.txt 2>/dev/null || true
-          COMBINED=$(cat grep_errors.txt grep_deps.txt 2>/dev/null | tail -c 5500 | sed ':a;N;$!ba;s/\n/%0A/g')
-          if [ -z "$COMBINED" ]; then
-            COMBINED=$(tail -n 100 build.log | sed ':a;N;$!ba;s/\n/%0A/g')
-          fi
+          echo "----- resource link errors -----"
+          grep -n -i "error:" build.log > grep_errors.txt || true
+          echo "----- cache search result -----"
+          cat cache_search.txt 2>/dev/null > combined.txt || touch combined.txt
+          echo "----- deps head -----" >> combined.txt
+          cat deps_head.txt 2>/dev/null >> combined.txt || true
+          echo "----- first 15 resource errors -----" >> combined.txt
+          head -15 grep_errors.txt >> combined.txt || true
+          COMBINED=$(cat combined.txt | tail -c 5500 | sed ':a;N;$!ba;s/\n/%0A/g')
           echo "::error::$COMBINED"
 
       - name: Rename artifact
